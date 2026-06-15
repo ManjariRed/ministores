@@ -1,32 +1,34 @@
-hello
 # app.py
-# MiniStore - Demo E-commerce Website using Streamlit
+# MiniStore - Demo E-commerce Website
+# Built using Streamlit
 
 import streamlit as st
 
-# ---------------------------------------------------
+# --------------------------------------------------
 # Page Configuration
-# ---------------------------------------------------
+# --------------------------------------------------
 st.set_page_config(
     page_title="MiniStore",
     page_icon="🛍️",
     layout="wide"
 )
 
-# ---------------------------------------------------
+# --------------------------------------------------
 # Custom CSS Styling
-# ---------------------------------------------------
+# --------------------------------------------------
 st.markdown("""
 <style>
+    /* Main page styling */
     .main {
         padding-top: 1rem;
     }
 
+    /* Hero section */
     .hero {
         background: linear-gradient(135deg, #4F46E5, #7C3AED);
-        padding: 40px;
-        border-radius: 15px;
         color: white;
+        padding: 35px;
+        border-radius: 15px;
         margin-bottom: 30px;
     }
 
@@ -34,30 +36,33 @@ st.markdown("""
         margin-bottom: 10px;
     }
 
+    /* Product card styling */
     .product-card {
         background-color: white;
-        padding: 20px;
+        border: 1px solid #E5E7EB;
         border-radius: 15px;
-        border: 1px solid #e6e6e6;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 20px;
         margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
     .product-name {
         font-size: 22px;
         font-weight: bold;
-        margin-bottom: 8px;
+        color: #111827;
     }
 
-    .price {
-        color: #16A34A;
-        font-size: 20px;
-        font-weight: bold;
-    }
-
-    .category {
+    .product-category {
         color: #6B7280;
         font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .product-price {
+        color: #16A34A;
+        font-size: 22px;
+        font-weight: bold;
+        margin-top: 10px;
     }
 
     .footer {
@@ -69,62 +74,63 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------
+# --------------------------------------------------
 # Sample Product Data
-# ---------------------------------------------------
+# --------------------------------------------------
 products = [
     {
         "name": "Wireless Headphones",
         "price": 2999,
-        "description": "Noise-cancelling headphones with premium sound quality.",
+        "description": "Premium noise-cancelling headphones with immersive sound.",
         "category": "Electronics"
     },
     {
         "name": "Smart Watch",
         "price": 4999,
-        "description": "Track fitness, notifications, and daily activities.",
+        "description": "Track fitness, heart rate, and notifications effortlessly.",
         "category": "Electronics"
-    },
-    {
-        "name": "Classic Backpack",
-        "price": 1499,
-        "description": "Durable backpack suitable for work and travel.",
-        "category": "Fashion"
     },
     {
         "name": "Running Shoes",
         "price": 3499,
-        "description": "Lightweight shoes designed for comfort and performance.",
+        "description": "Lightweight and comfortable shoes for everyday performance.",
+        "category": "Fashion"
+    },
+    {
+        "name": "Classic Backpack",
+        "price": 1499,
+        "description": "Stylish backpack perfect for work, college, and travel.",
         "category": "Fashion"
     },
     {
         "name": "Coffee Maker",
         "price": 2499,
-        "description": "Brew delicious coffee in minutes at home.",
+        "description": "Brew rich and delicious coffee at home with ease.",
         "category": "Home"
     },
     {
-        "name": "Desk Lamp",
+        "name": "LED Desk Lamp",
         "price": 999,
-        "description": "Modern LED desk lamp with adjustable brightness.",
+        "description": "Modern desk lamp with adjustable brightness settings.",
         "category": "Home"
     }
 ]
 
-# ---------------------------------------------------
-# Session State for Shopping Cart
-# ---------------------------------------------------
-if "cart_count" not in st.session_state:
-    st.session_state.cart_count = 0
+# --------------------------------------------------
+# Initialize Shopping Cart
+# --------------------------------------------------
+if "cart_items" not in st.session_state:
+    st.session_state.cart_items = 0
 
 if "cart_total" not in st.session_state:
     st.session_state.cart_total = 0
 
-# ---------------------------------------------------
+# --------------------------------------------------
 # Sidebar
-# ---------------------------------------------------
+# --------------------------------------------------
 st.sidebar.title("🛒 MiniStore")
 
+# Create category filter
 categories = ["All"] + sorted(
     list(set(product["category"] for product in products))
 )
@@ -134,42 +140,47 @@ selected_category = st.sidebar.radio(
     categories
 )
 
+# Shopping cart summary
 st.sidebar.markdown("---")
-st.sidebar.subheader("Shopping Cart")
-st.sidebar.write(f"Items: {st.session_state.cart_count}")
-st.sidebar.write(f"Total: ₹{st.session_state.cart_total}")
+st.sidebar.subheader("Shopping Cart Summary")
+st.sidebar.write(f"Items in Cart: {st.session_state.cart_items}")
+st.sidebar.write(f"Total Amount: ₹{st.session_state.cart_total}")
 
-# ---------------------------------------------------
-# Homepage Hero Section
-# ---------------------------------------------------
+# --------------------------------------------------
+# Homepage Title
+# --------------------------------------------------
+st.title("🛍️ MiniStore")
+
+# --------------------------------------------------
+# Welcome Section
+# --------------------------------------------------
 st.markdown("""
 <div class="hero">
-    <h1>Welcome to MiniStore 🛍️</h1>
+    <h1>Welcome to MiniStore</h1>
     <p>
-        Discover quality products at affordable prices.
-        Shop the latest trends across electronics,
-        fashion, and home essentials.
+        Your one-stop destination for quality products at great prices.
+        Explore our featured collections and shop your favorites today.
     </p>
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------
-# Featured Products Title
-# ---------------------------------------------------
+# --------------------------------------------------
+# Featured Products Section
+# --------------------------------------------------
 st.header("⭐ Featured Products")
 
-# Filter products by category
-if selected_category != "All":
+# Filter products based on selected category
+if selected_category == "All":
+    filtered_products = products
+else:
     filtered_products = [
         product for product in products
         if product["category"] == selected_category
     ]
-else:
-    filtered_products = products
 
-# ---------------------------------------------------
-# Display Products Using Columns
-# ---------------------------------------------------
+# --------------------------------------------------
+# Display Products in Responsive Layout
+# --------------------------------------------------
 for i in range(0, len(filtered_products), 3):
 
     cols = st.columns(3)
@@ -181,35 +192,36 @@ for i in range(0, len(filtered_products), 3):
             st.markdown(f"""
             <div class="product-card">
                 <div class="product-name">{product['name']}</div>
-                <div class="category">
+
+                <div class="product-category">
                     Category: {product['category']}
                 </div>
-                <br>
-                <div>{product['description']}</div>
-                <br>
-                <div class="price">
+
+                <p>{product['description']}</p>
+
+                <div class="product-price">
                     ₹{product['price']}
                 </div>
             </div>
             """, unsafe_allow_html=True)
 
+            # Add to Cart Button
             if st.button(
-                f"Add to Cart - {product['name']}",
+                f"Add to Cart",
                 key=product["name"]
             ):
-                st.session_state.cart_count += 1
+                st.session_state.cart_items += 1
                 st.session_state.cart_total += product["price"]
 
                 st.success(
                     f"{product['name']} added to cart!"
                 )
 
-# ---------------------------------------------------
+# --------------------------------------------------
 # Footer
-# ---------------------------------------------------
+# --------------------------------------------------
 st.markdown("""
 <div class="footer">
-    © 2026 MiniStore • Demo E-commerce Website
+    © 2026 MiniStore | Demo E-commerce Website
 </div>
 """, unsafe_allow_html=True)
-```
